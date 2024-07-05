@@ -29,4 +29,4 @@ This project aims to develop a machine learning model to predict customer churn 
 Feel free to submit pull requests to contribute to the project.
 
 ## License
-[MIT License](LICENSE)
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

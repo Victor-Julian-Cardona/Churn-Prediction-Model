@@ -1,6 +1,10 @@
 import os
 import django
 import pandas as pd
+import sys
+
+# Ensure the project root is in the Python path
+sys.path.append('C:/Users/victo/Documents/Churn-Prediction-Model')
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'churn_project.settings')
 django.setup()
@@ -13,7 +17,6 @@ def load_data():
     data['TotalCharges'] = data['TotalCharges'].astype(float)
     data['TotalCharges'].fillna(data['TotalCharges'].median(), inplace=True)
 
-    # Load data into Django models
     for index, row in data.iterrows():
         Customer.objects.create(
             customerID=row['customerID'],
