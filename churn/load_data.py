@@ -12,9 +12,15 @@ django.setup()
 from churn.models import Customer
 
 def load_data():
-    data = pd.read_csv('../Telco-Customer-Churn.csv')
+    data = pd.read_csv('Telco-Customer-Churn.csv')
+    
+    # Replace spaces with NaN
     data['TotalCharges'] = data['TotalCharges'].replace(" ", pd.NA)
+    
+    # Convert to float
     data['TotalCharges'] = data['TotalCharges'].astype(float)
+    
+    # Fill NaN values with the median
     data['TotalCharges'].fillna(data['TotalCharges'].median(), inplace=True)
 
     for index, row in data.iterrows():
