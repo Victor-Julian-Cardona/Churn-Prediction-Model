@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, confu
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from imblearn.over_sampling import SMOTE
 import numpy as np
+from joblib import dump
 
 # Load the data
 data = pd.read_csv('Telco-Customer-Churn.csv')
@@ -89,5 +90,14 @@ if hasattr(model, 'coef_'):
     feature_importance = pd.DataFrame({'Feature': feature_names, 'Importance': model.coef_[0]})
     feature_importance = feature_importance.sort_values(by='Importance', ascending=False)
     print(feature_importance)
+    
+    # Save feature names and importance
+    dump(feature_names, 'churn/feature_names.pkl')
+    dump(feature_importance, 'churn/feature_importance.pkl')
 else:
     print("Feature importance is not available for this model.")
+
+# Save the model and preprocessors
+dump(model, 'churn/logistic_regression_model.pkl')
+dump(scaler, 'churn/scaler.pkl')
+dump(encoder, 'churn/encoder.pkl')

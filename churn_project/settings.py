@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'churn',
+    'crm',
 ]
 
 MIDDLEWARE = [
@@ -122,3 +123,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import os
+
+#model paths
+MODEL_PATH = os.path.join(BASE_DIR, 'path/to/your/logistic_regression_model.pkl')
+DATA_PATH = os.path.join(BASE_DIR, 'path/to/your/Telco-Customer-Churn.csv')

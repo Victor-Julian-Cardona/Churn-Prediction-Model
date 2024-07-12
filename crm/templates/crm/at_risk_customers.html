@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>At-Risk Customers</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Customers at Risk of Churning</h1>
+    <table>
+        <tr>
+            <th>Customer ID</th>
+            <th>Churn Probability</th>
+        </tr>
+        {% for customer in at_risk_customers %}
+        <tr>
+            <td>{{ customer.customerID }}</td>
+            <td>{{ customer.Churn_Probability }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
