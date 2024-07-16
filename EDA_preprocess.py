@@ -17,7 +17,7 @@ for col in binary_columns:
 
 # Handle missing values in 'TotalCharges' and convert to float
 data['TotalCharges'] = pd.to_numeric(data['TotalCharges'], errors='coerce')
-data.loc[:, 'TotalCharges'] = data['TotalCharges'].fillna(data['TotalCharges'].median())
+data['TotalCharges'] = data['TotalCharges'].fillna(data['TotalCharges'].median())
 
 # Drop CustomerID
 data = data.drop('customerID', axis=1)
@@ -52,7 +52,7 @@ X_preprocessed_df = pd.DataFrame(X_preprocessed, columns=[
 X_preprocessed_df['Churn'] = y.values
 
 # Plot distributions of numerical variables
-num_features = X_preprocessed_df.shape[1]
+num_features = len(num_cols) + len(preprocessor.named_transformers_['cat'].get_feature_names_out(cat_cols))
 fig, axes = plt.subplots(nrows=(num_features // 3) + 1, ncols=3, figsize=(20, 15))
 axes = axes.flatten()
 
@@ -60,16 +60,14 @@ for i, col in enumerate(X_preprocessed_df.columns):
     ax = axes[i]
     ax.hist(X_preprocessed_df[col], bins=50)
     ax.set_title(f'Distribution of {col}', fontsize=12)
-    ax.set_xlabel('Value', fontsize=10)
-    ax.set_ylabel('')
 
-plt.tight_layout()
+plt.tight_layout(pad=3.0)
 plt.show()
 
 # Correlation matrix
 corr_matrix = X_preprocessed_df.corr()
-plt.figure(figsize=(10, 8))
-sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+plt.figure(figsize=(12, 10))
+sns.heatmap(corr_matrix, annot=True, fmt=".2f", annot_kws={"size": 8}, cmap='coolwarm')
 plt.title('Correlation Matrix', fontsize=16)
 plt.show()
 
