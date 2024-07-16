@@ -1,14 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Home</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Home</title>
 </head>
 <body>
-    <h1>Welcome to the CRM</h1>
+    <h1>Welcome to the CRM Home Page</h1>
     <ul>
-        <li><a href="{% url 'model_metrics' %}">Model Performance Metrics</a></li>
+        <li><a href="{% url 'model_metrics' %}">Model Metrics</a></li>
         <li><a href="{% url 'churn_factors' %}">Churn Factors</a></li>
-        <li><a href="{% url 'at_risk_customers' %}">At Risk Customers</a></li>
+        <li><a href="{% url 'at_risk_customers' %}">At-Risk Customers</a></li>
     </ul>
+    <form method="POST" action="{% url 'retrain_model' %}">
+        {% csrf_token %}
+        <button type="submit">Retrain Model</button>
+    </form>
 </body>
 </html>
