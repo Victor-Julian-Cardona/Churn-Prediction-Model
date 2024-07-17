@@ -1,5 +1,6 @@
 import pandas as pd
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
 from joblib import load, dump
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
 from sklearn.model_selection import train_test_split
@@ -7,6 +8,14 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.linear_model import LogisticRegression
 from imblearn.over_sampling import SMOTE
 import numpy as np
+import os
+import matplotlib.pyplot as plt
+import seaborn as sns
+from io import BytesIO
+import base64
+import matplotlib
+matplotlib.use('Agg')
+
 
 # Load the model and preprocessors
 pipeline = load('churn/logistic_regression_model.pkl')
@@ -85,8 +94,6 @@ def churn_factors(request):
     }
     return render(request, 'crm/churn_factors.html', context)
 
-
-
 def at_risk_customers(request):
     # Load customer data
     data = pd.read_csv('Telco-Customer-Churn.csv')
@@ -131,10 +138,30 @@ def at_risk_customers(request):
     at_risk_customers = at_risk_customers[['customerID', 'Churn_Probability']]
     at_risk_customers = at_risk_customers.sort_values(by='Churn_Probability', ascending=False)
 
+    # Handle search query
+    if request.method == "POST":
+        customer_id = request.POST.get("customerID")
+        customer_data = at_risk_customers[at_risk_customers['customerID'] == customer_id]
+
+        if customer_data.empty:
+            return JsonResponse({"error": "Customer ID not found"}, status=404)
+
+        return JsonResponse({"customerID": customer_id, "Churn_Probability": customer_data.iloc[0]['Churn_Probability']})
+
     context = {
         'at_risk_customers': at_risk_customers.to_dict(orient='records'),
     }
     return render(request, 'crm/at_risk_customers.html', context)
+
+
+def save_plot(fig, plot_name):
+    directory = os.path.join('crm', 'static', 'crm', 'images')
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    path = os.path.join(directory, plot_name)
+    fig.savefig(path, bbox_inches='tight')
+    plt.close(fig)
+
 
 def model_metrics(request):
     # Load sample data to evaluate the model
@@ -182,6 +209,32 @@ def model_metrics(request):
     conf_matrix = confusion_matrix(y_test, y_pred_adjusted)
     class_report = classification_report(y_test, y_pred_adjusted)
 
+    # Save plots as images
+    # Plot distributions of numerical variables
+    fig, axes = plt.subplots(nrows=3, ncols=1, figsize=(10, 15))
+    sns.histplot(data['tenure'], ax=axes[0], kde=True).set_title('Distribution of Tenure')
+    sns.histplot(data['MonthlyCharges'], ax=axes[1], kde=True).set_title('Distribution of Monthly Charges')
+    sns.histplot(data['TotalCharges'], ax=axes[2], kde=True).set_title('Distribution of Total Charges')
+    save_plot(fig, 'distributions.png')
+    plt.close(fig)  # Close the figure
+
+    # Correlation matrix
+    corr_matrix = data.corr().round(2)  # Round to 2 decimal places
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', ax=ax, annot_kws={"size": 6})
+    ax.set_title('Correlation Matrix')
+    save_plot(fig, 'correlation_matrix.png')
+    plt.close(fig)  # Close the figure
+
+    # Scatter plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(data['tenure'], data['MonthlyCharges'])
+    ax.set_xlabel('Tenure (Months)')
+    ax.set_ylabel('Monthly Charges ($)')
+    ax.set_title('Tenure vs. Monthly Charges')
+    save_plot(fig, 'scatter_plot.png')
+    plt.close(fig)  # Close the figure
+
     context = {
         'accuracy': accuracy,
         'precision': precision,
@@ -190,6 +243,8 @@ def model_metrics(request):
         'class_report': class_report,
     }
     return render(request, 'crm/model_metrics.html', context)
+
+
 
 def retrain_model(request):
     # Load and preprocess data
@@ -204,6 +259,9 @@ def retrain_model(request):
     onehot_cols = ['InternetService', 'Contract', 'PaymentMethod']
     data = pd.get_dummies(data, columns=onehot_cols)
     data = data.drop(columns=['customerID'])
+
+     # Save the cleaned dataset
+    data.to_csv('cleaned_telco_customer_churn.csv', index=False)
 
     # Define features and target
     X = data.drop('Churn', axis=1)

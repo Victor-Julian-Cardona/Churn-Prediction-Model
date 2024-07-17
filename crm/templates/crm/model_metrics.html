@@ -1,34 +1,28 @@
+<!-- templates/crm/model_metrics.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Model Performance Metrics</title>
+    <title>Model Performance</title>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'crm/styles.css' %}">
 </head>
 <body>
-    <h1>Model Performance Metrics</h1>
-    <p><strong>Accuracy:</strong> {{ accuracy }}</p>
-    <p><strong>Precision:</strong> {{ precision }}</p>
-    <p><strong>Recall:</strong> {{ recall }}</p>
-
+    <h1>Model Performance</h1>
+    <p>Accuracy: {{ accuracy }}</p>
+    <p>Precision: {{ precision }}</p>
+    <p>Recall: {{ recall }}</p>
     <h2>Confusion Matrix</h2>
-    <table border="1">
-        <tr>
-            <th></th>
-            <th>Predicted No</th>
-            <th>Predicted Yes</th>
-        </tr>
-        <tr>
-            <td>Actual No</td>
-            <td>{{ conf_matrix.0.0 }}</td>
-            <td>{{ conf_matrix.0.1 }}</td>
-        </tr>
-        <tr>
-            <td>Actual Yes</td>
-            <td>{{ conf_matrix.1.0 }}</td>
-            <td>{{ conf_matrix.1.1 }}</td>
-        </tr>
-    </table>
-
+    <pre>{{ conf_matrix }}</pre>
     <h2>Classification Report</h2>
     <pre>{{ class_report }}</pre>
+    
+    <h2>Distributions of Numerical Variables</h2>
+    <img src="{% static 'crm/images/distributions.png' %}" alt="Distributions">
+
+    <h2>Correlation Matrix</h2>
+    <img src="{% static 'crm/images/correlation_matrix.png' %}" alt="Correlation Matrix">
+
+    <h2>Scatter Plot</h2>
+    <img src="{% static 'crm/images/scatter_plot.png' %}" alt="Scatter Plot">
 </body>
 </html>

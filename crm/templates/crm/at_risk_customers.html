@@ -1,37 +1,53 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>At-Risk Customers</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
-</head>
-<body>
-    <h1>Customers at Risk of Churning</h1>
-    <table>
+<!-- templates/crm/at_risk_customers.html -->
+<h1>At-Risk Customers</h1>
+
+<!-- Search form -->
+<form method="POST" action="{% url 'at_risk_customers' %}">
+    {% csrf_token %}
+    <label for="customerID">Enter Customer ID:</label>
+    <input type="text" id="customerID" name="customerID">
+    <button type="submit">Search</button>
+</form>
+
+<div id="search-result"></div>
+
+<!-- Display all at-risk customers -->
+<table>
+    <thead>
         <tr>
             <th>Customer ID</th>
             <th>Churn Probability</th>
         </tr>
+    </thead>
+    <tbody>
         {% for customer in at_risk_customers %}
-        <tr>
-            <td>{{ customer.customerID }}</td>
-            <td>{{ customer.Churn_Probability }}</td>
-        </tr>
+            <tr>
+                <td>{{ customer.customerID }}</td>
+                <td>{{ customer.Churn_Probability }}</td>
+            </tr>
         {% endfor %}
-    </table>
-</body>
-</html>
+    </tbody>
+</table>
+
+<script>
+    const form = document.querySelector('form');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        const response = await fetch("{% url 'at_risk_customers' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        });
+        const result = await response.json();
+        const resultsDiv = document.getElementById('search-result');
+        if (response.ok) {
+            resultsDiv.innerHTML = `<p>Customer ID: ${result.customerID}</p>
+                                    <p>Churn Probability: ${result.Churn_Probability}</p>`;
+        } else {
+            resultsDiv.innerHTML = `<p>${result.error}</p>`;
+        }
+    });
+</script>
